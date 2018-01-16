@@ -1,0 +1,2 @@
+class RequestCoreService:
+    pass
