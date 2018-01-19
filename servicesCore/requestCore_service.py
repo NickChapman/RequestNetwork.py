@@ -25,10 +25,10 @@ class RequestCoreService:
     def getRequestByTransactionHash(self, hash:str):
         pass
 
-    def getRequestEvents(self, requestId: str, **kwargs):
+    def getRequestEvents(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass
 
-    def getRequestsByAddress(self, address: str, **kwargs):
+    def getRequestsByAddress(self, address: str, fromBlock: int = None, toBlock: int = None):
         pass
 
     def getIpfsFile(self, hash: str):

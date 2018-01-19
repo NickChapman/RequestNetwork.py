@@ -14,31 +14,37 @@ class RequestEthereumService:
     def createRequestAsPayee(self,
                              payer: str,
                              amountInitial: Any,
-                             **kwargs):
+                             data: str = None,
+                             extension: str = None,
+                             extensionParams: str = None,
+                             options: Any = None):
         pass
 
-    def accept(self, requestId: str, **kwargs):
+    def accept(self, requestId: str, options: Any = None):
         pass
 
-    def cancel(self, requestId: str, **kwargs):
+    def cancel(self, requestId: str, options: Any = None):
         pass
 
-    def paymentAction(self, requestId: str, amount: Any, additionals: Any, **kwargs):
+    def paymentAction(self, requestId: str, amount: Any, additionals: Any, options: Any = None):
         pass
 
-    def refundAction(self, requestId: str, amount: Any, **kwargs):
+    def refundAction(self, requestId: str, amount: Any, options: Any = None):
         pass
 
-    def subtractAction(self, requestId: str, amount: Any, **kwargs):
+    def subtractAction(self, requestId: str, amount: Any, options: Any = None):
         pass
 
-    def additionalAction(self, requestId: str, amount: Any, **kwargs):
+    def additionalAction(self, requestId: str, amount: Any, options: Any = None):
         pass
 
     def getRequestCurrencyContractInfo(self, requestId: str):
         pass
 
-    def getRequest(self, requestId: str, **kwargs):
+    def getRequest(self, requestId: str):
+        pass
+
+    def getRequestEvents(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass
 
     def decodeInputData(self, data: Any) -> Any:
@@ -47,5 +53,5 @@ class RequestEthereumService:
     def generateWeb3Method(self, name: str, parameters: List[Any]) -> Any:
         pass
 
-    def getRequestEventsCurrencyContractInfo(self, requestId: str, **kwargs):
+    def getRequestEventsCurrencyContractInfo(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass

@@ -5,7 +5,7 @@ from config import config
 
 
 class Web3Single:
-    def __init__(self, **kwargs):
+    def __init__(self, web3Provider: Any = None, networkId: int = None):
         pass
 
     @staticmethod
@@ -25,10 +25,10 @@ class Web3Single:
                         callbackTransactionReceipt,
                         callbackTransactionConfirmation,
                         callbackTransactionError,
-                        **kwargs):
+                        options: Any = None):
         pass
 
-    def callMethod(self, method, **kwargs):
+    def callMethod(self, method, options: Any = None):
         pass
 
     # Async

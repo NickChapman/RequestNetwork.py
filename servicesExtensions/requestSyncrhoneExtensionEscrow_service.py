@@ -14,7 +14,7 @@ class RequestSynchroneExtensionEscrowService:
     def parseParameters(self, extensionParams: List[Any]) -> Any:
         pass
 
-    def releaseToPayeeAction(self, requestId: str, **kwargs):
+    def releaseToPayeeAction(self, requestId: str, options: Any = None):
         pass
 
     def getRequest(self, requestId: str):
@@ -23,9 +23,9 @@ class RequestSynchroneExtensionEscrowService:
     def getRequestExtensionInfo(self, requestId: str):
         pass
 
-    def getRequestEvents(self, requestId: str, **kwargs):
+    def getRequestEvents(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass
 
-    def getRequestEventsExtensionInfo(self, requestId: str, **kwargs):
+    def getRequestEventsExtensionInfo(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass
 
