@@ -14,8 +14,8 @@ class RequestNetwork:
             the Ethereum network ID
         """
         if provider and not networkId:
-            raise ValueError('if you give the provider you have to give the '
-                             'networkId too')
+            raise ValueError('If provider is given, networkId must be given '
+                             'as well')
         # Will assume that the Singletons are initialized in the typical way
         # not the "singleton.init(...)" like in the .ts source
 
