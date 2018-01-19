@@ -6,10 +6,18 @@ from servicesExternal.ipfs_service import Ipfs
 from servicesExternal.web3_single import Web3Single
 from servicesExtensions import *
 
-
 class RequestEthereumService:
     def __init__(self):
-        pass
+        self._web3Single = Web3Single.getInstance()
+        self._ipfs = Ipfs.getInstance()
+        self._abiRequestCore = requestCoreArtifact.abi
+        self._requestCoreServices = new RequestCoreService()
+        self._abiRequestEthereum = RequestEthereumArtifact.abi
+        if not requestEthereumArtifact.networks[self.__web3Single.networkName] :
+                    raise ValueError('RequestEthereum Artifact: no config for network : "' + self._web3Single.networkName + '"')
+        self._addressRequestEthereum = requestEthereumArtifact.networks[self.__web3Single.networkName].address
+        self._instanceRequestEthereum = self._web3Single.web3.eth.Contract(self._abiRequestEthereum,
+            self._addressRequestEthereum)
 
     def createRequestAsPayee(self,
                              payer: str,
@@ -36,22 +44,22 @@ class RequestEthereumService:
         pass
 
     def additionalAction(self, requestId: str, amount: Any, options: Any = None):
-        pass
+        
 
     def getRequestCurrencyContractInfo(self, requestId: str):
         pass
 
     def getRequest(self, requestId: str):
-        pass
+        return self._requestCoreServices.getRequest(requestId)
 
     def getRequestEvents(self, requestId: str, fromBlock: int = None, toBlock: int = None):
-        pass
+        return self._requestCoreServices.getRequestEvents(requestId,fromBlock,toBlock)
 
     def decodeInputData(self, data: Any) -> Any:
-        pass
+        return self._web3Single.decodeInputData(self._abiRequestEthereum, data)
 
     def generateWeb3Method(self, name: str, parameters: List[Any]) -> Any:
-        pass
+        return self._web3Single.generateWeb3Method(self._instanceRequestEthereum, name, parameters)
 
     def getRequestEventsCurrencyContractInfo(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass
