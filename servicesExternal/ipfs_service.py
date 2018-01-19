@@ -1,6 +1,11 @@
-import ipfsapi
 import json
-
+import ipfsapi
+from ipfsapi.exceptions import TimeoutError
+from ipfsapi.exceptions import ConnectionError
+from ipfsapi.exceptions import StatusError
+from ipfsapi.exceptions import ProtocolError
+from ipfsapi.exceptions import ErrorResponse
+from ipfsapi.exceptions import Error
 from config import config
 
 # Note to contributers: to work on this you will need to use
@@ -39,17 +44,13 @@ class Ipfs:
             result = await self.ipfs.cat(hash)
 
             return result
-        except ipfsapi.exceptions.ConnectionError as err:
-            print("IPFS connection error: ", err)
-        except ipfsapi.exceptions.ProtocolError as err:
-            print("Bad connection protocol: ", err)
-        except ipfsapi.exceptions.ErrorResponse as err:
-            print("Error retrieving file: ", err)
-        except ipfsapi.exceptions.StatusError as err:
-            print("Status error: ", err)
-        except ipfsapi.exceptions.TimeoutError as err:
-            print("Connection timeout error: ", err)
-        except ipfsapi.exceptions.Error as err:
-            print("Error retrieving file: ", err)
-        finally:
-            return None
+        except ConnectionError as e:
+            raise ConnectionError(e, "Connecting to the service has failed on the socket layer.")
+        except ProtocolError as e:
+            raise ProtocolError(e, "Parsing the response from the daemon failed. Is service on the remote end IPFS daemon?")
+        except ErrorResponse as e:
+            raise ErrorResponse("Requested operation could not be carried out.", e)
+        except StatusError as e:
+            raise StatusError(e, "Daemon responded with an error.")
+        except TimeoutError as e:
+            raise TimeoutError(e, "Connection timeout error")
