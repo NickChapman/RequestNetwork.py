@@ -9,7 +9,17 @@ from servicesExtensions import *
 
 class RequestEthereumService:
     def __init__(self):
-        pass
+        self.__web3Single = Web3Single.getInstance()
+        self._ipfs = Ipfs.getInstance()
+        self._abiRequestCore = requestCoreArtifact.abi
+        self._requestCoreServices = new RequestCoreService()
+        self._abiRequestEthereum = RequestEthereumArtifact.abi
+        if (!requestEthereumArtifact.networks[self.__web3Single.networkName]) {
+                    raiseException('RequestEthereum Artifact: no config for network : "' + self.__web3Single.networkName + '"')
+                }
+        self._addressRequestEthereum = requestEthereumArtifact.networks[self.__web3Single.networkName].address
+        self._instanceRequestEthereum = new self.__web3Single.web3.eth.Contract(self._abiRequestEthereum,
+            self._addressRequestEthereum)
 
     def createRequestAsPayee(self,
                              payer: str,
@@ -36,22 +46,22 @@ class RequestEthereumService:
         pass
 
     def additionalAction(self, requestId: str, amount: Any, options: Any = None):
-        pass
+        
 
     def getRequestCurrencyContractInfo(self, requestId: str):
         pass
 
     def getRequest(self, requestId: str):
-        pass
+        return self._requestCoreServices.getRequest(requestId)
 
     def getRequestEvents(self, requestId: str, fromBlock: int = None, toBlock: int = None):
-        pass
+        return self._requestCoreServices.getRequestEvents(requestId,fromBlock,toBlock)
 
     def decodeInputData(self, data: Any) -> Any:
-        pass
+        return self.__web3Single.decodeInputData(self._abiRequestEthereum, data)
 
     def generateWeb3Method(self, name: str, parameters: List[Any]) -> Any:
-        pass
+        return self.__web3Single.generateWeb3Method(self._instanceRequestEthereum, name, parameters)
 
     def getRequestEventsCurrencyContractInfo(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass
