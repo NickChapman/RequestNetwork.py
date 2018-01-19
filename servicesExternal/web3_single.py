@@ -56,12 +56,12 @@ class Web3Single(metaclass = Singleton):
         pass
 
     def isAddressNoChecksum(self, address: str) -> bool:
-        if is not address :
+        if not address :
             return False
         return address and self.web3.utils.isAddress(address.toLowerCase())
 
     def areSameAddressesNoChecksum(self, address1: str, address2: str) -> bool:
-        if is not address1 or is not address2 :
+        if not address1 or not address2 :
             return False
         return address1.toLowerCase()==address2.toLowerCase()
 
@@ -100,9 +100,9 @@ class Web3Single(metaclass = Singleton):
         return self.web3.eth.abi.decodelog(eventInput, event.raw.data, event.topics[1:])
 
     def setUpOptions(self, options: Any) -> Any:
-        if is not options :
+        if not options :
             options = {}
-        if is not options.numberOfConfirmation :
+        if not options.numberOfConfirmation :
             options.numberOfConfirmation = 0
         #BN is no here so i used different method check
         if options.gasPrice :
