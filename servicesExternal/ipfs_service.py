@@ -15,14 +15,14 @@ class Ipfs:
         Ipfs._instance = Ipfs(publicIpfs)
 
     @staticmethod
-    def getInstance():
+    def get_instance():
         return Ipfs._instance
 
     def __init__(self, publicIpfs: bool=True):
         self.ipfsConfig = config["ipfs"]["nodeUrlDefault"]["public" if publicIpfs else "private"]
         self.ipfs = ipfsapi.connect(self.ipfsConfig["host"], self.ipfsConfig["port"], self.ipfsConfig["protocol"])
 
-    async def addFile(self, data: str):
+    async def add_file(self, data: str):
         if data == None or data == "":
             raise ValueError("")
         
@@ -31,7 +31,7 @@ class Ipfs:
 
         return result["hash"]
 
-    async def getFile(self, hash: str):
+    async def get_file(self, hash: str):
         if hash == None or hash == "":
             raise ValueError("")
         
@@ -41,5 +41,3 @@ class Ipfs:
             return result
         except ipfsapi.exceptions.Error as err:
             raise err
-         
-
