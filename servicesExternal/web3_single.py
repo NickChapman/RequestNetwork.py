@@ -26,7 +26,7 @@ class Web3Single(metaclass = Singleton):
 
     @staticmethod
     def getNetworkName(networkId: int ) -> str:
-        return {1 : 'main', 2 :'morden', 3 : 'ropsten', 4 : 'rinkeby', 42 :'kovan','default' : 'private'}.get(networkId,'default')
+        return {1 : 'main', 2 :'morden', 3 : 'ropsten', 4 : 'rinkeby', 42 :'kovan'}.get(networkId,'private')
 
     # Async
     def broadcastMethod(self,
