@@ -15,8 +15,8 @@ class Singleton(type):
 
 class Web3Single(metaclass = Singleton):
     def __init__(self, web3Provider: Any = None, networkId: int = None):
-        self.web3 = new WEB3(web3Provider or new WEB3.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default])) #put here right link
-        self.networkId = networkId ? Web3Single.getNetworkName(networkId) : config.ethereum.default
+        self.web3 = WEB3(web3Provider or new WEB3.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default])) #put here right link
+        self.networkId = Web3Single.getNetworkName(networkId) if networkId  else config.ethereum.default
 
     @staticmethod
     def getInstance():
@@ -25,8 +25,8 @@ class Web3Single(metaclass = Singleton):
     # We skip BN because it's useless in Python
 
     @staticmethod
-    def getNetworkName(networkId: int = 55) -> str:
-        return {1 : 'main', 2 :'morden', 3 : 'ropsten', 4 : 'rinkeby', 42 :'kovan',55 : 'private'}[int]
+    def getNetworkName(networkId: int ) -> str:
+        return {1 : 'main', 2 :'morden', 3 : 'ropsten', 4 : 'rinkeby', 42 :'kovan','default' : 'private'}.get(networkId,'default')
 
     # Async
     def broadcastMethod(self,
@@ -63,7 +63,7 @@ class Web3Single(metaclass = Singleton):
     def areSameAddressesNoChecksum(self, address1: str, address2: str) -> bool:
         if not address1 or not address2 :
             return False
-        return address1.toLowerCase()==address2.toLowerCase()
+        return address1.toLowerCase() == address2.toLowerCase()
 
     def isHexStrictBytes32(self, hex: str) -> bool:
         return self.web3.utils.isHexStrict(hex) and hex.length == 66
@@ -77,8 +77,8 @@ class Web3Single(metaclass = Singleton):
         pass
 
     def decodeTransactionLog(self, abi: List[Any], event: str, log: Any) -> Any:
-        'eventInput' : Any
-        'signature' : str = ''
+        eventInput : Any
+        signature : str = ''
         #check here for some function no idea
         for o in abi:
             if o.name == event:
@@ -91,7 +91,7 @@ class Web3Single(metaclass = Singleton):
 
 
     def decodeEvent(self, abi: List[Any], eventName: str, event: Any) -> Any:
-        'eventInput' : Any
+        eventInput : Any
         for o in abi:
             if o.name == event:
                 eventInput = o.inputs
@@ -102,13 +102,13 @@ class Web3Single(metaclass = Singleton):
     def setUpOptions(self, options: Any) -> Any:
         if not options :
             options = {}
-        if not options.numberOfConfirmation :
-            options.numberOfConfirmation = 0
+        if not options['numberOfConfirmation'] :
+            options['numberOfConfirmation'] = 0
         #BN is no here so i used different method check
-        if options.gasPrice :
-            options.gasPrice = self.web3.eth.gasPrice
-        if options.gas :
-            options.gas = self.web3.eth.gas
+        if options['gasPrice'] :
+            options['asPrice'] = self.web3.eth.gasPrice
+        if options['gas'] :
+            options['gas'] = self.web3.eth.gas
         return options
 
     # Async
@@ -124,7 +124,7 @@ class Web3Single(metaclass = Singleton):
         pass
 
     def resultToArray(self, obj: Any) -> List[Any]:
-        'result' : List[Any] = List[]
-        for i in obj.__lebgth__ :
+        result : List[Any] = List[]
+        for i in range(len(obj)) :
             result.append(obj[i])
         return result
