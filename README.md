@@ -5,3 +5,5 @@ A Python 3.6 implementation of the [Request Network API](https://github.com/Requ
 
 To contribute please see the Wiki!
 
+# Dependencies
+Install dependencies by using `pip install -r requirements.txt`
