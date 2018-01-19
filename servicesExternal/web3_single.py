@@ -15,7 +15,7 @@ class Singleton(type):
 
 class Web3Single(metaclass = Singleton):
     def __init__(self, web3Provider: Any = None, networkId: int = None):
-        self.web3 = new WEB3(web3Provider || new WEB3.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default])) #put here right link
+        self.web3 = new WEB3(web3Provider or new WEB3.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default])) #put here right link
         self.networkId = networkId ? Web3Single.getNetworkName(networkId) : config.ethereum.default
 
     @staticmethod
@@ -47,14 +47,7 @@ class Web3Single(metaclass = Singleton):
 
     # Async
     def getDefaultAccountCallback(self, callback) -> None:
-        #check here
-        self.web3.eth.getAccounts((err : Error, acc : List[Any]){
-            if err :
-                return callback(err,undefined) 
-            if acc.length == 0:
-                return callback(Error('No accounts found'), undefined)
-            return callback(undefined, accs[0])
-            })
+        pass
 
     def toSolidityBytes32(self, type: str, value) -> Any:
         pass
@@ -65,15 +58,15 @@ class Web3Single(metaclass = Singleton):
     def isAddressNoChecksum(self, address: str) -> bool:
         if is not address :
             return False
-        return address&&self.web3.utils.isAddress(address.toLowerCase())
+        return address and self.web3.utils.isAddress(address.toLowerCase())
 
     def areSameAddressesNoChecksum(self, address1: str, address2: str) -> bool:
-        if is not address1 || is not address2 :
+        if is not address1 or is not address2 :
             return False
         return address1.toLowerCase()==address2.toLowerCase()
 
     def isHexStrictBytes32(self, hex: str) -> bool:
-        return self.web3.utils.isHexStrict(hex) && hex.length == 66
+        return self.web3.utils.isHexStrict(hex) and hex.length == 66
 
     def generateWeb3Method(self, contractInstance,
                            name: str,
@@ -94,7 +87,7 @@ class Web3Single(metaclass = Singleton):
                 break
         if log.topics[0] != signature :
             return None
-        return self.web3.eth.abi.decodelog(eventInput, log.data, log.topics.slice(1))
+        return self.web3.eth.abi.decodelog(eventInput, log.data, log.topics[1:])
 
 
     def decodeEvent(self, abi: List[Any], eventName: str, event: Any) -> Any:
@@ -104,7 +97,7 @@ class Web3Single(metaclass = Singleton):
                 eventInput = o.inputs
                 signature = o.signature
                 break
-        return self.web3.eth.abi.decodelog(eventInput, event.raw.data, event.topics.slice(1))
+        return self.web3.eth.abi.decodelog(eventInput, event.raw.data, event.topics[1:])
 
     def setUpOptions(self, options: Any) -> Any:
         if is not options :
