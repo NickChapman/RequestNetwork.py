@@ -5,3 +5,8 @@ A Python 3.6 implementation of the [Request Network API](https://github.com/Requ
 
 To contribute please see the Wiki!
 
+# Dependencies
+ipfsapi (pip install ipfsapi)
+asyncio (pip install asyncio)
+
+
