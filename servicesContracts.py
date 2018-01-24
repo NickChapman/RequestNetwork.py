@@ -1,7 +1,6 @@
 from typing import Any
 from artifacts import *
 
-
 def getServiceFromAddress(address: str) -> Any:
     """
     return the service of a corresponding currency contract address
@@ -25,7 +24,7 @@ def isThisArtifact(artifact, address: str) -> bool:
     if not address:
         return False
     sanitizedAdress = address.lower()
-    for key, network in artifact["networks"].items():
+    for network in artifact["networks"].values():
         if 'address' in network and network['address'].lower() == sanitizedAdress:
             return True
     return False
