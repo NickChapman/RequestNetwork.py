@@ -8,7 +8,13 @@ from servicesExternal.web3_single import Web3Single
 
 class RequestCoreService:
     def __init__(self):
-        pass
+        self._web3Single = Web3Single.getInstance()
+        self._ipfs = Ipfs.getInstance()
+        self._abiRequestCore = requestCoreArtifact.abi
+        if not requestCoreArtifact.networks[self._web3Single.networkName]:
+            raise ValueError('RequestCore Artifact does not have configuration for network: "' + self._web3Single.networkName + '"')
+        self._addressRequestCore = requestCoreArtifact.networks[self._web3Single.networkName].address
+        self._instanceRequestCore = self._web3Single.web3.eth.Contract(self._abiRequestCore, self._addressRequestCore)
 
     def getCurrentNumRequest(self):
         pass
