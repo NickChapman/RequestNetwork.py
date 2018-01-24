@@ -3,7 +3,8 @@ import asyncio
 from artifacts import *
 from config import config
 from servicesContracts.requestEthereum_service import RequestEthereumService
-from servicesExtensions import getServiceFromAddress
+import servicesExtensions
+import servicesContracts
 from servicesExtensions.requestSyncrhoneExtensionEscrow_service import RequestSynchroneExtensionEscrowService
 from servicesExternal.ipfs_service import Ipfs
 from servicesExternal.web3_single import Web3Single
@@ -48,7 +49,7 @@ class RequestCoreService:
                 'creator': data.creator,
                 'currencyContract': data.currencyContract,
                 'data': data.data,
-                'extension': data.extension != EMPTY_BYTES_32 ? data.extension : None,
+                'extension': data.extension if data.extension != EMPTY_BYTES_32 else None,
                 'payee': data.payee,
                 'payer': data.payer,
                 'requestId': requestId,
@@ -56,18 +57,18 @@ class RequestCoreService:
             }
 
             # get information from the currency contract
-            if getServiceFromAddress(data.currencyContract):
+            if servicesExtensions.getServiceFromAddress(data.currencyContract):
                 ccyContractDetails = await getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfo(requestId)
                 dataResult['currencyContract'] = ccyContractDetails
 
             # get information from the extension contract
-            if data.extension and data.extension != '' and getServiceFromAddress(data.extension):
-                extensionDetails = await getServiceFromAddress(data.extension).getRequestExtensionInfo(requestId)
+            if data.extension and data.extension != '' and servicesExtensions.getServiceFromAddress(data.extension):
+                extensionDetails = await servicesExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfo(requestId)
                 dataResult['extension'] = extensionDetails
 
             # get ipfs details if needed
             if dataResult.data && dataResult.data != '':
-                # might need to do some json wrangling
+                # TODO: might need to do some json wrangling
                 dataResult['data'] = await self._ipfs.get_file(dataResult.data)
             else:
                 dataResult['data'] = None
@@ -76,8 +77,64 @@ class RequestCoreService:
         except Exception as e:
             raise e
 
-    def getRequestByTransactionHash(self, hash:str):
-        pass
+    async def getRequestByTransactionHash(self, _hash:str):
+        try:
+            errors = []
+            warnings = []
+            transaction = await self._web3Single.getTransaction(_hash)
+            if not transaction:
+                raise ValueError('transaction not found')
+
+            ccyContract = transaction.to
+
+            ccyContractservice = await servicesContracts.getServiceFromAddress(ccyContract)
+            # get information from the currency contract
+            if not ccyContractservice:
+                raise ValueError('Contract is not supported by request')
+
+            method = ccyContractservice.decodeInputData(transaction.input)
+            if not method.name:
+                raise ValueError('transaction data not parsable')
+
+            request = None
+
+            txReceipt = await self._web3Single.getTransactionReceipt(_hash)
+            # if already mined
+            if txReceipt:
+                if txReceipt.status != '0x1' and txReceipt.status != 1:
+                    errors.append('transaction has failed')
+                elif transaction.method and transaction.method.pararmeters and transaction.method.parameters._requestId:
+                    # simple action
+                    request = await self.getRequest(transaction.method.parameters._requestId)
+                elif transaction txReceipt.logs and txReceipt.logs[0] and self._web3Single.areSameAddressNoChecksum(txReceipt.logs[0].address, self._addressRequestCore)
+                    # maybe a creation
+                    event = self._web3Single.decodeTransactionLog(self._abiRequestCore, 'Created', txReceipt.logs[0])
+                    if event:
+                        request = self.getRequest(event.requestId)
+            else:
+                # if not mined
+                methodGenerated = ccyContractservice.generateWeb3Method(transaction.method.name, self._web3Single.resultToArray(transaction.method.parameters))
+                options = {
+                    'from': transaction.from,
+                    # 'gas': BN(transaction.gas),
+                    'value': transaction.value
+                }
+
+                try:
+                    test = await self._web3Single.callMethod(methodGenerated, options)
+                except Exception as e:
+                    warnings.append('transaction may failed: ' + e)
+
+                if transaction.gasPrice < config.ethereum.gasPriceMinimumCriticalInWei:
+                    warnings.append('transaction gasPrice is low')
+
+            errors = None if not errors else errors
+            warnings = None if not warnings else warnings
+            return (request, transaction, errors, warnings)
+
+        except Exception as e:
+            raise e
+
 
     def getRequestEvents(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass
