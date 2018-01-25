@@ -1,4 +1,4 @@
-import asyncio
+ import asyncio
 
 from artifacts import *
 from config import config
@@ -12,6 +12,10 @@ from servicesExternal.web3_single import Web3Single
 EMPTY_BYTES_32 = '0x0000000000000000000000000000000000000000'
 
 class RequestCoreService:
+    """
+    The RequestCoreService class is the interface for the Request Core contract
+    """
+
     def __init__(self):
         self._web3Single = Web3Single.getInstance()
         self._ipfs = Ipfs.getInstance()
@@ -23,18 +27,32 @@ class RequestCoreService:
         self._instanceRequestCore = self._web3Single.web3.eth.Contract(self._abiRequestCore, self._addressRequestCore)
 
     async def getCurrentNumRequest(self):
+        """
+        Get the number of the last request (N.B. != id)
+        """
         try:
             return self._instanceRequestCore.call().numRequests()
         except Exception as e:
             raise e
 
     async def getVersion(self):
+        """
+        Get the version of the contract
+        """
         try:
             return self._instanceRequestCore.call().VERSION()
         except Exception as e:
             raise e
 
     async def getCollectEstimation(self, expectedAmount: any, currencyContract: str, extension: str):
+        """
+        Get the estimation of ether (in wei) needed to create a request
+        :param expectedAmount: amount expected of the request
+        :param currencyContract: address of the currency contract of the request
+        :param extension: address of the extension contract of the request
+        """
+        # BN stuff?
+
         if not self._web3Single.isAddressNoChecksum(currencyContract):
             raise ValueError('currencyContract must be a valid eth address')
 
@@ -48,6 +66,10 @@ class RequestCoreService:
             raise e
 
     async def getRequest(self, requestId: str):
+        """
+        Get a request by its requestId
+        :param requestId: requestId of the request
+        """
         if not self._web3Single.isHexStrictBytes32(requestId):
             raise ValueError('requestId must be a 32 bytes hex string')
         try:
@@ -89,6 +111,10 @@ class RequestCoreService:
             raise e
 
     async def getRequestByTransactionHash(self, _hash:str):
+        """
+        Get a request and method called by the hash of a transaction
+        :param hash: hash of the ethereum transaction
+        """
         try:
             errors = []
             warnings = []
@@ -151,6 +177,12 @@ class RequestCoreService:
         pass
 
     async def getRequestsByAddress(self, address: str, fromBlock: int = None, toBlock: int = None):
+        """
+        Get the list of requests connected to an address
+        :param address: address to get the requests
+        :param fromBlock: search requests from this block
+        :param toBlock:  search requests until this block
+        """
         try:
             networkName = self._web3Single.networkName
 
@@ -180,4 +212,8 @@ class RequestCoreService:
             raise e
 
     async def getIpfsFile(self, hash: str):
+        """
+        Get the file content from ipfs
+        :param hash: hash of the file
+        """
         return self._ipfs.get_file(hash)
