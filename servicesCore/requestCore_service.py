@@ -15,10 +15,11 @@ class RequestCoreService:
     def __init__(self):
         self._web3Single = Web3Single.getInstance()
         self._ipfs = Ipfs.getInstance()
-        self._abiRequestCore = requestCoreArtifact.abi
-        if not requestCoreArtifact.networks[self._web3Single.networkName]:
+        # TODO: load requestCoreArtifact using JSONLoader
+        self._abiRequestCore = requestCoreArtifact['abi']
+        if not requestCoreArtifact['networks'][self._web3Single.networkName]:
             raise ValueError('RequestCore Artifact does not have configuration for network: "' + self._web3Single.networkName + '"')
-        self._addressRequestCore = requestCoreArtifact.networks[self._web3Single.networkName].address
+        self._addressRequestCore = requestCoreArtifact['networks'][self._web3Single.networkName].address
         self._instanceRequestCore = self._web3Single.web3.eth.Contract(self._abiRequestCore, self._addressRequestCore)
 
     async def getCurrentNumRequest(self):
@@ -33,8 +34,18 @@ class RequestCoreService:
         except Exception as e:
             raise e
 
-    def getCollectEstimation(self, expectedAmount: any, currencyContract: str, extension: str):
-        pass
+    async def getCollectEstimation(self, expectedAmount: any, currencyContract: str, extension: str):
+        if not self._web3Single.isAddressNoChecksum(currencyContract):
+            raise ValueError('currencyContract must be a valid eth address')
+
+        if extension and extension != '' and not self._web3Single.isAddressNoChecksum(extension):
+            raise ValueError('extension must be a valid eth address')
+
+        try:
+            data = self._instanceRequestCore.call().getCollectEstimation(expectedAmount, currencyContract, extension)
+            return data
+        except Exception as e:
+            raise e
 
     async def getRequest(self, requestId: str):
         if not self._web3Single.isHexStrictBytes32(requestId):
@@ -67,7 +78,7 @@ class RequestCoreService:
                 dataResult['extension'] = extensionDetails
 
             # get ipfs details if needed
-            if dataResult.data && dataResult.data != '':
+            if dataResult.data and dataResult.data != '':
                 # TODO: might need to do some json wrangling
                 dataResult['data'] = await self._ipfs.get_file(dataResult.data)
             else:
@@ -139,8 +150,34 @@ class RequestCoreService:
     def getRequestEvents(self, requestId: str, fromBlock: int = None, toBlock: int = None):
         pass
 
-    def getRequestsByAddress(self, address: str, fromBlock: int = None, toBlock: int = None):
-        pass
+    async def getRequestsByAddress(self, address: str, fromBlock: int = None, toBlock: int = None):
+        try:
+            networkName = self._web3Single.networkName
 
-    def getIpfsFile(self, hash: str):
-        pass
+            # get events Created with payee == address
+            eventsCorePayee = await self._instanceRequestCore.getPastEvents('Created', {
+                'filter': {'payee': address},
+                'fromBlock': fromBlock if fromBlock else requestCoreArtifact['networks'][networkName]['blockNumber'],
+                'toBlock': toBlock if toBlock else 'latest'
+            })
+
+            # get events Created with payer == address
+            eventsCorePayer = await this._instanceRequestCore.getPastEvents('Created', {
+                'filter': {'payer': address},
+                'fromBlock': fromBlock if fromBlock else requestCoreArtifact['network'][networkName]['blockNumber'],
+                'toBlock': toBlock if toBlock else 'latest'
+            })
+
+            # clean the data and get timestamp for request as payee
+            # TODO: implement this, I believe it is just adding 
+            # a _meta dict to each event using a map
+
+            # clean the data and get timestamp for request as payer
+            # ditto here, but for eventsCorePayer
+
+            return {'asPayee': eventsCorePayee, 'asPayer': eventsCorePayer}
+        except Exception as e:
+            raise e
+
+    async def getIpfsFile(self, hash: str):
+        return self._ipfs.get_file(hash)
