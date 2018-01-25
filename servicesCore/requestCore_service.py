@@ -51,8 +51,6 @@ class RequestCoreService:
         :param currencyContract: address of the currency contract of the request
         :param extension: address of the extension contract of the request
         """
-        # BN stuff?
-
         if not self._web3Single.isAddressNoChecksum(currencyContract):
             raise ValueError('currencyContract must be a valid eth address')
 
@@ -79,9 +77,11 @@ class RequestCoreService:
 
             # excluding BN
             dataResult = {
+                'balance': data.balance,
                 'creator': data.creator,
                 'currencyContract': data.currencyContract,
                 'data': data.data,
+                'expectedAmount': data.expectedAmount,
                 'extension': data.extension if data.extension != EMPTY_BYTES_32 else None,
                 'payee': data.payee,
                 'payer': data.payer,
@@ -153,7 +153,7 @@ class RequestCoreService:
                 methodGenerated = ccyContractservice.generateWeb3Method(transaction.method.name, self._web3Single.resultToArray(transaction.method.parameters))
                 options = {
                     'from': transaction.from,
-                    # 'gas': BN(transaction.gas),
+                    'gas': transaction.gas,
                     'value': transaction.value
                 }
 
