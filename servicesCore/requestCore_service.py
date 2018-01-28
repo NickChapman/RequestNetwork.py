@@ -3,8 +3,8 @@
 from artifacts import *
 from config import config
 from servicesContracts.requestEthereum_service import RequestEthereumService
-import servicesExtensions
-import servicesContracts
+from servicesExtensions import getServiceFromAddress as getServiceExtensionFromAddress
+from servicesContracts import getServiceFromAddress as getServiceContractFromAddress
 from servicesExtensions.requestSyncrhoneExtensionEscrow_service import RequestSynchroneExtensionEscrowService
 from servicesExternal.ipfs_service import Ipfs
 from servicesExternal.web3_single import Web3Single
@@ -23,7 +23,7 @@ class RequestCoreService:
         self._abiRequestCore = requestCoreArtifact['abi']
         if not requestCoreArtifact['networks'][self._web3Single.networkName]:
             raise ValueError('RequestCore Artifact does not have configuration for network: "' + self._web3Single.networkName + '"')
-        self._addressRequestCore = requestCoreArtifact['networks'][self._web3Single.networkName].address
+        self._addressRequestCore = requestCoreArtifact['networks'][self._web3Single.networkName]['address']
         self._instanceRequestCore = self._web3Single.web3.eth.Contract(self._abiRequestCore, self._addressRequestCore)
 
     async def getCurrentNumRequest(self):
@@ -54,7 +54,7 @@ class RequestCoreService:
         if not self._web3Single.isAddressNoChecksum(currencyContract):
             raise ValueError('currencyContract must be a valid eth address')
 
-        if extension and extension != '' and not self._web3Single.isAddressNoChecksum(extension):
+        if extension and not self._web3Single.isAddressNoChecksum(extension):
             raise ValueError('extension must be a valid eth address')
 
         try:
@@ -90,13 +90,13 @@ class RequestCoreService:
             }
 
             # get information from the currency contract
-            if servicesExtensions.getServiceFromAddress(data.currencyContract):
-                ccyContractDetails = await getServiceFromAddress(data.currencyContract).getRequestCurrencyContractInfo(requestId)
+            if getServiceContractFromAddress(data.currencyContract):
+                ccyContractDetails = await getServiceContractFromAddress(data.currencyContract).getRequestCurrencyContractInfo(requestId)
                 dataResult['currencyContract'] = ccyContractDetails
 
             # get information from the extension contract
-            if data.extension and data.extension != '' and servicesExtensions.getServiceFromAddress(data.extension):
-                extensionDetails = await servicesExtensions.getServiceFromAddress(data.extension).getRequestExtensionInfo(requestId)
+            if data.extension and data.extension != '' and getServiceExtensionFromAddress(data.extension):
+                extensionDetails = await getServiceExtensionFromAddress(data.extension).getRequestExtensionInfo(requestId)
                 dataResult['extension'] = extensionDetails
 
             # get ipfs details if needed
@@ -110,7 +110,7 @@ class RequestCoreService:
         except Exception as e:
             raise e
 
-    async def getRequestByTransactionHash(self, _hash:str):
+    async def getRequestByTransactionHash(self, hash: str):
         """
         Get a request and method called by the hash of a transaction
         :param hash: hash of the ethereum transaction
@@ -124,12 +124,12 @@ class RequestCoreService:
 
             ccyContract = transaction.to
 
-            ccyContractservice = await servicesContracts.getServiceFromAddress(ccyContract)
+            ccyContractService = await servicesContracts.getServiceFromAddress(ccyContract)
             # get information from the currency contract
-            if not ccyContractservice:
+            if not ccyContractService:
                 raise ValueError('Contract is not supported by request')
 
-            method = ccyContractservice.decodeInputData(transaction.input)
+            method = ccyContractService.decodeInputData(transaction.input)
             if not method.name:
                 raise ValueError('transaction data not parsable')
 
@@ -143,14 +143,14 @@ class RequestCoreService:
                 elif transaction.method and transaction.method.pararmeters and transaction.method.parameters._requestId:
                     # simple action
                     request = await self.getRequest(transaction.method.parameters._requestId)
-                elif transaction txReceipt.logs and txReceipt.logs[0] and self._web3Single.areSameAddressNoChecksum(txReceipt.logs[0].address, self._addressRequestCore)
+                elif transaction txReceipt.logs and txReceipt.logs[0] and self._web3Single.areSameAddressNoChecksum(txReceipt.logs[0]['address'], self._addressRequestCore)
                     # maybe a creation
                     event = self._web3Single.decodeTransactionLog(self._abiRequestCore, 'Created', txReceipt.logs[0])
                     if event:
                         request = self.getRequest(event.requestId)
             else:
                 # if not mined
-                methodGenerated = ccyContractservice.generateWeb3Method(transaction.method.name, self._web3Single.resultToArray(transaction.method.parameters))
+                methodGenerated = ccyContractService.generateWeb3Method(transaction.method.name, self._web3Single.resultToArray(transaction.method.parameters))
                 options = {
                     'from': transaction.from,
                     'gas': transaction.gas,
@@ -160,13 +160,13 @@ class RequestCoreService:
                 try:
                     test = await self._web3Single.callMethod(methodGenerated, options)
                 except Exception as e:
-                    warnings.append('transaction may failed: ' + e)
+                    warnings.append('transaction may have failed: ' + e)
 
                 if transaction.gasPrice < config.ethereum.gasPriceMinimumCriticalInWei:
                     warnings.append('transaction gasPrice is low')
 
-            errors = None if not errors else errors
-            warnings = None if not warnings else warnings
+            errors = errors or None
+            warnings = warnings or None
             return (request, transaction, errors, warnings)
 
         except Exception as e:
@@ -203,6 +203,7 @@ class RequestCoreService:
             # clean the data and get timestamp for request as payee
             # TODO: implement this, I believe it is just adding 
             # a _meta dict to each event using a map
+            raise NotImplementedError('Still need to clean data')
 
             # clean the data and get timestamp for request as payer
             # ditto here, but for eventsCorePayer
