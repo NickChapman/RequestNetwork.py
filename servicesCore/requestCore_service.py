@@ -19,7 +19,6 @@ class RequestCoreService:
     def __init__(self):
         self._web3Single = Web3Single.getInstance()
         self._ipfs = Ipfs.getInstance()
-        # TODO: load requestCoreArtifact using JSONLoader
         self._abiRequestCore = requestCoreArtifact['abi']
         if not requestCoreArtifact['networks'][self._web3Single.networkName]:
             raise ValueError('RequestCore Artifact does not have configuration for network: "' + self._web3Single.networkName + '"')
@@ -201,9 +200,9 @@ class RequestCoreService:
             })
 
             # clean the data and get timestamp for request as payee
+            raise NotImplementedError('Still need to clean data')
             # TODO: implement this, I believe it is just adding 
             # a _meta dict to each event using a map
-            raise NotImplementedError('Still need to clean data')
 
             # clean the data and get timestamp for request as payer
             # ditto here, but for eventsCorePayer
