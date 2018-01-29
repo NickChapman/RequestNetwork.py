@@ -23,9 +23,10 @@ class RequestSynchroneExtensionEscrowService:
     def getRequestExtensionInfo(self, requestId: str):
         pass
 
-    def getRequestEvents(self, requestId: str, fromBlock: int = None, toBlock: int = None):
+    def getRequestEvents(self, requestId: str, fromBlock: int = None,
+                         toBlock: int = None):
         pass
 
-    def getRequestEventsExtensionInfo(self, requestId: str, fromBlock: int = None, toBlock: int = None):
+    def getRequestEventsExtensionInfo(self, requestId: str,
+                                      fromBlock: int=None, toBlock: int=None):
         pass
-

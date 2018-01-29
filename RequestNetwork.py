@@ -19,7 +19,7 @@ class RequestNetwork:
         # Will assume that the Singletons are initialized in the typical way
         # not the "singleton.init(...)" like in the .ts source
 
-        #Initializing Web3 & Ipfs wrapper singletons
+        # Initializing Web3 & Ipfs wrapper singletons
         Web3Single(provider, networkId)
         Ipfs(useIpfsPublic)
         self.requestCoreService = RequestCoreService()
