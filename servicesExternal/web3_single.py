@@ -1,4 +1,6 @@
+from math import floor
 from typing import Any, List
+
 from web3 import Web3 as WEB3
 
 from config import config
@@ -28,18 +30,76 @@ class Web3Single(metaclass = Singleton):
     def getNetworkName(networkId: int ) -> str:
         return {1 : 'main', 2 :'morden', 3 : 'ropsten', 4 : 'rinkeby', 42 :'kovan'}.get(networkId,'private')
 
-    # Async
-    def broadcastMethod(self,
+    async def broadcastMethod(self,
                         method: Any,
                         callbackTranactionHash,
                         callbackTransactionReceipt,
                         callbackTransactionConfirmation,
                         callbackTransactionError,
                         options: Any = None):
-        pass
-
-    def callMethod(self, method, options: Any = None):
-        pass
+        '''
+        Send a web3 method
+        :param method: the method to send
+        :param callbackTransactionHash: callback when the transaction is submitted
+        :param callbackTransactionReceipt: callback when the transaction is mined (0 confirmation block)
+        :param callbackTransactionConfirmation: callback when a new block is mined (up to 20)
+        :param callbackTransactionError: callback when an error occured
+        :param options: options for the method (gasPrice, gas, value, from)
+        '''
+        options['numberOfConfirmation'] = None
+        if 'from' not in options:
+            try:
+                accounts = await self.web3.eth.getAccounts()
+                options['from'] = accounts[0]
+            except Exception as e:
+                return callbackTransactionError(e)
+        forcedGas = options['gas']
+        options['value'] = options['value'] or 0
+        options['gas'] = options['gas'] or 0
+        options['gasPrice'] = options['gasPrice'] or self.web3.utils.toWei(config['ethereum']['gasPriceDefault'], config['ethereum']['gasPriceDefaultUnit'])
+        # get the gas estimation
+        try:
+            estimatedGas = method.estimateGas(options)
+            # it is safer to add 5% of gas
+            options['gas'] = forcedGas if forcedGas else floor(estimatedGas * 1.05)
+            # try the method offline
+            try:
+                # try the method offline
+                method.call(options)
+                # everything looks fine, let's send the transaction
+                method.send(options)
+                    .on('transactionHash', callbackTranactionHash)
+                    .on('receipt', callbackTransactionReceipt)
+                    .on('confirmation', callbackTransactionConfirmation)
+                    .on('error', callbackTransactionError)
+            except:
+                # try with more gas (*2)
+                options['gas'] = forcedGas if forcedGas else floor(estimatedGas * 2)
+                # try the method offline
+                try:
+                    method.call(options)
+                    # everything looks fine, let's send the transaction
+                    method.send(options)
+                    .on('transactionHash', callBackTransactionHash)
+                    .on('receipt', callbackTransactionReceipt)
+                    .on('confirmation', callbackTransactionConfirmation)
+                    .on('error', callbackTransactionError)
+                except Exception as e2:
+                    return callbackTransactionError(e2)
+        except Exception as e:
+            return callbackTransactionError(e)
+ 
+    async def callMethod(self, method: Any, options: Any = None):
+        '''
+        Send a web3 method
+        :param method: the method to call()
+        :param options: options for the method (gasPrice, gas, value, from)
+        '''
+        try:
+            method.estimateGas(options)
+            return method.call(options)
+        except Exception as e:
+            raise e
 
     async def getDefaultAccount(self):
         '''
