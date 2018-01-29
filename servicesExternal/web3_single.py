@@ -50,36 +50,66 @@ class Web3Single(metaclass = Singleton):
         pass
 
     def toSolidityBytes32(self, type: str, value) -> Any:
+        '''
+        Convert a value in solidity bytes32 string
+        :param type: type of the value to convert (e.g: address, unint, int, etc...)
+        :param value: value to convert
+        '''
         pass
 
     def arrayToBytes32(self, array, length: int) -> List[Any]:
         pass
 
     def isAddressNoChecksum(self, address: str) -> bool:
+        '''
+        Check if an address is valid (ignoring case)
+        :param address: address to check
+        '''
         if not address :
             return False
         return address and self.web3.utils.isAddress(address.toLowerCase())
 
     def areSameAddressesNoChecksum(self, address1: str, address2: str) -> bool:
+        '''
+        Check if two addresses are equals (ignoring case)
+        :param address1: address to check
+        :param address2: address to check
+        '''
         if not address1 or not address2 :
             return False
         return address1.toLowerCase() == address2.toLowerCase()
 
     def isHexStrictBytes32(self, hex: str) -> bool:
+        '''
+        Check if a string is a hex byte
+        :param hex: string to check
+        '''
         return self.web3.utils.isHexStrict(hex) and hex.length == 66
 
     def generateWeb3Method(self, contractInstance,
                            name: str,
                            parameters: List[Any]) -> Any:
+        '''
+        Generate web3 method
+        :param contractInstance: contract instance
+        :param name: method's name
+        :param parameters: method's parameters
+        '''
         return contractInstance.methods[name].apply(None, parameters)
 
     def decodeInputData(self, abi: List[Any], data: str) -> Any:
         pass
 
     def decodeTransactionLog(self, abi: List[Any], event: str, log: Any) -> Any:
+        '''
+        Decode transaction log parameters
+        :param abi: abi of the contract
+        :param event: event name
+        :param log: log to decode
+        '''
         eventInput : Any
         signature : str = ''
-        #check here for some function no idea
+        # check here for some function no idea
         for o in abi:
             if o.name == event:
                 eventInput = o.inputs
@@ -91,6 +121,12 @@ class Web3Single(metaclass = Singleton):
 
 
     def decodeEvent(self, abi: List[Any], eventName: str, event: Any) -> Any:
+        '''
+        Decode transaction event parameters
+        :param abi: abi of the contract
+        :param eventName: event name
+        :param event: event to decode
+        '''
         eventInput : Any
         for o in abi:
             if o.name == event:
@@ -100,6 +136,10 @@ class Web3Single(metaclass = Singleton):
         return self.web3.eth.abi.decodelog(eventInput, event.raw.data, event.topics[1:])
 
     def setUpOptions(self, options: Any) -> Any:
+        '''
+        Create or Clean options for a method
+        :param options: options for the method (gasPrice, gas, value, from, numberOfConfirmation)
+        '''
         if not options :
             options = {}
         if not options['numberOfConfirmation'] :
@@ -111,17 +151,33 @@ class Web3Single(metaclass = Singleton):
             options['gas'] = self.web3.eth.gas
         return options
 
-    # Async
-    def getTransactionReceipt(self, hash: str):
-        pass
+    async def getTransactionReceipt(self, hash: str):
+        '''
+        Get Transaction receipt
+        :param hash: transaction hash
+        '''
+        return self.web3.eth.getTransactionReceipt(hash)
 
-    # Async
-    def getTransaction(self, hash: str):
-        pass
+    async def getTransaction(self, hash: str):
+        '''
+        Get Transaction
+        :param hash: transaction hash
+        '''
+        return self.web3.eth.getTransaction(hash)
 
-    # Async
-    def getBlockTimestamp(self, blockNumber: int):
-        pass
+    async def getBlockTimestamp(self, blockNumber: int):
+        '''
+        Get timestamp of a block
+        :param blockNumber: number of the block
+        '''
+        try:
+            if not self._blockTimestamp['blockNumber']:
+                block = await self.web3.eth.getBlock(blockNumber)
+                if not block:
+                    raise ValueError('Block {} not found'.format(blockNumber))
+                self._blockTimestamp['blockNumber'] = block['timestamp']
+        except Exception as e:
+            raise e
 
     def resultToArray(self, obj: Any) -> List[Any]:
         result : List[Any] = List[]
