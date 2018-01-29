@@ -114,7 +114,34 @@ class Web3Single(metaclass = Singleton):
         return contractInstance.methods[name].apply(None, parameters)
 
     def decodeInputData(self, abi: List[Any], data: str) -> Any:
-        pass
+        '''
+        Decode transaction input data
+        :param abi: abi of the contract
+        :param data: input data
+        '''
+        if not data:
+            return {}
+
+        method = {}
+        for o in abi:
+            if o['type'] == 'function':
+                sign = o['name'] + '(' + ','.join(o['inputs']) + ')'
+                encoded = self.web3.eth.abi.encodeFunctionSignature(sign)
+                if encoded == data[:10]:
+                    method = {'signature': sign, 'abi': o}
+                    break
+
+        if not method['signature']:
+            return {}
+
+        onlyParameters = '0x' + data[10]
+        try:
+            return {
+                'name': method['abi']['name'],
+                'parameters': self.web3.eth.abi.decodeParameters(method['abi']['inputs'], onlyParameters)
+            }
+        except:
+            return {}
 
     def decodeTransactionLog(self, abi: List[Any], event: str, log: Any) -> Any:
         '''
