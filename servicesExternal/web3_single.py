@@ -70,7 +70,7 @@ class Web3Single(metaclass = Singleton):
                 # try the method offline
                 method.call(options)
                 # everything looks fine, let's send the transaction
-                method.send(options)
+                method.transact(options)
                     .on('transactionHash', callbackTranactionHash)
                     .on('receipt', callbackTransactionReceipt)
                     .on('confirmation', callbackTransactionConfirmation)
@@ -82,7 +82,7 @@ class Web3Single(metaclass = Singleton):
                 try:
                     method.call(options)
                     # everything looks fine, let's send the transaction
-                    method.send(options)
+                    method.transact(options)
                     .on('transactionHash', callBackTransactionHash)
                     .on('receipt', callbackTransactionReceipt)
                     .on('confirmation', callbackTransactionConfirmation)
