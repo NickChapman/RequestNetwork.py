@@ -5,7 +5,7 @@ class RequestNetwork:
         RequestNetwork.py
 
         :param useIpfsPublic:
-            use public Ipfs if true, else the private one 
+            use public Ipfs if true, else the private one
             specified in src/config.json
         :param provider:
             the Web3 instance one wishes RequestNetwork to use in
