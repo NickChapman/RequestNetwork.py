@@ -41,13 +41,29 @@ class Web3Single(metaclass = Singleton):
     def callMethod(self, method, options: Any = None):
         pass
 
-    # Async
-    def getDefaultAccount(self):
-        pass
+    async def getDefaultAccount(self):
+        '''
+        Get the default account (account[0] of the wallet)
+        '''
+        try:
+            accs = self.web3.eth.getAccounts()
+            if len(accs) is 0:
+                raise ValueError('No accounts found')
+            return accs[0]
+        except Exception as e:
+            raise e
 
-    # Async
     def getDefaultAccountCallback(self, callback) -> None:
-        pass
+        '''
+        Get the default account (account[0] of the wallet) with a callback
+        '''
+        try:
+            accs = self.web3.eth.getAccounts()
+            if len(accs) is 0:
+                return callback(ValueError('No accounts found'), None)
+            return callback(None, accs[0])
+        except Exception as e:
+            return callback(e, None)
 
     def toSolidityBytes32(self, type: str, value) -> Any:
         '''
