@@ -4,6 +4,9 @@ from typing import Any, List
 from web3 import Web3 as WEB3
 
 from config import config
+from lib.etherum_abi_perso import toSolidityBytes32
+
+
 class Singleton(type):
     _instances = {}
     def __call__(cls, *args, **kwargs):
@@ -131,10 +134,23 @@ class Web3Single(metaclass = Singleton):
         :param type: type of the value to convert (e.g: address, unint, int, etc...)
         :param value: value to convert
         '''
-        pass
+        return self.web3.utils.encoding.to_hex(toSolidityBytes32(type, value))
 
     def arrayToBytes32(self, array, length: int) -> List[Any]:
-        pass
+        '''
+        Convert an array to an array in solidity bytes32 string
+        TODO: only support addresses so far
+        :param array: array to convert
+        :param length: length of the final array
+        '''
+        array = arrray or []
+        ret = []
+        for o in array:
+            ret.append(self.web3.utils.encoding.to_hex(toSolidityBytes32('address', 0)))
+        # fill the empty case with zeroes
+        for i in range(len(array), length):
+            ret.append(self.web3.utils.encoding.to_hex(toSolidityBytes32'bytes32', 0))
+        return ret
 
     def isAddressNoChecksum(self, address: str) -> bool:
         '''
