@@ -1,5 +1,6 @@
-from lib import JSONLoader
 from os.path import dirname, join
+
+from lib import JSONLoader
 
 _dir = dirname(__file__)
 

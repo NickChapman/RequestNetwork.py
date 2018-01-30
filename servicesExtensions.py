@@ -1,7 +1,8 @@
 from typing import Any, Union
+
 from artifacts import *
-from servicesExtensions.requestSyncrhoneExtensionEscrow_service import (
-    RequestSynchroneExtensionEscrowService)
+from servicesExtensions.requestSyncrhoneExtensionEscrow_service import \
+    RequestSynchroneExtensionEscrowService
 
 
 def getServiceFromAddress(

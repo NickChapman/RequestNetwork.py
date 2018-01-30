@@ -1,11 +1,9 @@
 import json
+
 import ipfsapi
-from ipfsapi.exceptions import TimeoutError
-from ipfsapi.exceptions import ConnectionError
-from ipfsapi.exceptions import StatusError
-from ipfsapi.exceptions import ProtocolError
-from ipfsapi.exceptions import ErrorResponse
-from ipfsapi.exceptions import Error
+from ipfsapi.exceptions import (ConnectionError, Error, ErrorResponse,
+                                ProtocolError, StatusError, TimeoutError)
+
 from config import config
 
 # Note to contributers: to work on this you will need to use

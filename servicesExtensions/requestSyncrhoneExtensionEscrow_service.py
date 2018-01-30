@@ -1,4 +1,5 @@
 from typing import Any, List
+
 from web3 import Web3 as WEB3
 
 from artifacts import *

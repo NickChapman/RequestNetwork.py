@@ -2,9 +2,9 @@ from typing import Any, List
 
 from artifacts import *
 from servicesCore.requestCore_service import RequestCoreService
+from servicesExtensions import *
 from servicesExternal.ipfs_service import Ipfs
 from servicesExternal.web3_single import Web3Single
-from servicesExtensions import *
 
 
 class RequestEthereumService:

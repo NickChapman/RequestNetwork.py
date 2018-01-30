@@ -2,13 +2,13 @@ import asyncio
 
 from artifacts import *
 from config import config
+from servicesContracts import \
+    getServiceFromAddress as getServiceContractFromAddress
 from servicesContracts.requestEthereum_service import RequestEthereumService
-from servicesExtensions import (
-    getServiceFromAddress as getServiceExtensionFromAddress)
-from servicesContracts import (
-    getServiceFromAddress as getServiceContractFromAddress)
-from servicesExtensions.requestSyncrhoneExtensionEscrow_service import (
-    RequestSynchroneExtensionEscrowService)
+from servicesExtensions import \
+    getServiceFromAddress as getServiceExtensionFromAddress
+from servicesExtensions.requestSyncrhoneExtensionEscrow_service import \
+    RequestSynchroneExtensionEscrowService
 from servicesExternal.ipfs_service import Ipfs
 from servicesExternal.web3_single import Web3Single
 
