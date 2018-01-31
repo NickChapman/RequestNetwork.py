@@ -5,7 +5,7 @@ class RequestNetwork:
         RequestNetwork.py
 
         :param useIpfsPublic:
-            use public Ipfs if true, else the private one 
+            use public Ipfs if true, else the private one
             specified in src/config.json
         :param provider:
             the Web3 instance one wishes RequestNetwork to use in
@@ -19,7 +19,7 @@ class RequestNetwork:
         # Will assume that the Singletons are initialized in the typical way
         # not the "singleton.init(...)" like in the .ts source
 
-        #Initializing Web3 & Ipfs wrapper singletons
+        # Initializing Web3 & Ipfs wrapper singletons
         Web3Single(provider, networkId)
         Ipfs(useIpfsPublic)
         self.requestCoreService = RequestCoreService()

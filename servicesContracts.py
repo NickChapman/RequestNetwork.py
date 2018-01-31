@@ -1,5 +1,7 @@
 from typing import Any
+
 from artifacts import *
+
 
 def getServiceFromAddress(address: str) -> Any:
     """
@@ -15,16 +17,19 @@ def getServiceFromAddress(address: str) -> Any:
 
 def isThisArtifact(artifact, address: str) -> bool:
     """
-    return True if any address in the network is sanitized address, otherwise it returns False
+    return True if any address in the network is sanitized address,
+    otherwise it returns False
     :param  artifact:
-        RequestNetwork Artifact to use in its interactions with the Ethereum network
+        RequestNetwork Artifact to use in its interactions
+        with the Ethereum network
     :param  address:
         The address of the currency contract
     """
     if not address:
         return False
-    sanitizedAdress = address.lower()
-    for network in artifact["networks"].values():
-        if 'address' in network and network['address'].lower() == sanitizedAdress:
+    sanitizedAddress = address.lower()
+    for network in artifact['networks'].values():
+        if ('address' in network and
+                network['address'].lower() == sanitizedAddress):
             return True
     return False
