@@ -9,19 +9,24 @@ from lib.etherum_abi_perso import toSolidityBytes32
 
 class Singleton(type):
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        #not sure about should we use else or not
+            cls._instances[cls] = super(
+                Singleton, cls).__call__(*args, **kwargs)
+        # not sure about should we use else or not
         else:
             cls._instances[cls].__init__(*args, **kwargs)
         return cls.__instance
 
 
-class Web3Single(metaclass = Singleton):
+class Web3Single(metaclass=Singleton):
     def __init__(self, web3Provider: Any = None, networkId: int = None):
-        self.web3 = WEB3(web3Provider or new WEB3.providers.HttpProvider(config.ethereum.nodeUrlDefault[config.ethereum.default])) #put here right link
-        self.networkId = Web3Single.getNetworkName(networkId) if networkId  else config.ethereum.default
+        self.web3 = WEB3(web3Provider or new WEB3.providers.HttpProvider(
+            config.ethereum.nodeUrlDefault
+            [config.ethereum.default]))  # put here right link
+        self.networkId = Web3Single.getNetworkName(networkId) if (
+            networkId) else config.ethereum.default
 
     @staticmethod
     def getInstance():
@@ -30,8 +35,14 @@ class Web3Single(metaclass = Singleton):
     # We skip BN because it's useless in Python
 
     @staticmethod
-    def getNetworkName(networkId: int ) -> str:
-        return {1 : 'main', 2 :'morden', 3 : 'ropsten', 4 : 'rinkeby', 42 :'kovan'}.get(networkId,'private')
+    def getNetworkName(networkId: int) -> str:
+        return {
+            1: 'main',
+            2: 'morden',
+            3: 'ropsten',
+            4: 'rinkeby',
+            42: 'kovan'
+        }.get(networkId, 'private')
 
     async def broadcastMethod(self,
                         method: Any,
@@ -234,10 +245,10 @@ class Web3Single(metaclass = Singleton):
                 eventInput = o.inputs
                 signature = o.signature
                 break
-        if log.topics[0] != signature :
+        if log.topics[0] != signature:
             return None
-        return self.web3.eth.abi.decodelog(eventInput, log.data, log.topics[1:])
-
+        return self.web3.eth.abi.decodelog(
+            eventInput, log.data, log.topics[1:])
 
     def decodeEvent(self, abi: List[Any], eventName: str, event: Any) -> Any:
         '''
@@ -252,7 +263,8 @@ class Web3Single(metaclass = Singleton):
                 eventInput = o.inputs
                 signature = o.signature
                 break
-        return self.web3.eth.abi.decodelog(eventInput, event.raw.data, event.topics[1:])
+        return self.web3.eth.abi.decodelog(
+            eventInput, event.raw.data, event.topics[1:])
 
     def setUpOptions(self, options: Any) -> Any:
         '''
@@ -261,12 +273,12 @@ class Web3Single(metaclass = Singleton):
         '''
         if not options :
             options = {}
-        if not options['numberOfConfirmation'] :
+        if not options['numberOfConfirmation']:
             options['numberOfConfirmation'] = 0
-        #BN is no here so i used different method check
-        if options['gasPrice'] :
+        # BN is no here so i used different method check
+        if options['gasPrice']:
             options['asPrice'] = self.web3.eth.gasPrice
-        if options['gas'] :
+        if options['gas']:
             options['gas'] = self.web3.eth.gas
         return options
 
@@ -299,7 +311,7 @@ class Web3Single(metaclass = Singleton):
             raise e
 
     def resultToArray(self, obj: Any) -> List[Any]:
-        result : List[Any] = List[]
-        for i in range(len(obj)) :
+        result: List[Any] = List[]
+        for i in range(len(obj)):
             result.append(obj[i])
         return result
