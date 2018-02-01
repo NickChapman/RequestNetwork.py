@@ -1,10 +1,10 @@
 from math import floor
-from typing import Any, List
+from typing import Any, Callable, List
 
 from web3 import Web3 as WEB3
 
 from config import config
-from lib.etherum_abi_perso import toSolidityBytes32
+from lib.etherum_abi_perso import toSolidityBytes32 as etherumToSolid
 
 
 class Singleton(type):
@@ -46,10 +46,10 @@ class Web3Single(metaclass=Singleton):
 
     async def broadcastMethod(self,
                         method: Any,
-                        callbackTranactionHash,
-                        callbackTransactionReceipt,
-                        callbackTransactionConfirmation,
-                        callbackTransactionError,
+                        callbackTranactionHash: Callable[[str], Any],
+                        callbackTransactionReceipt: Callable[[Any], None],
+                        callbackTransactionConfirmation: Callable[[int], Any],
+                        callbackTransactionError: Callable[[Exception], Exception],
                         options: Any = None):
         '''
         Send a web3 method
@@ -121,7 +121,7 @@ class Web3Single(metaclass=Singleton):
         '''
         try:
             accs = self.web3.eth.getAccounts()
-            if len(accs) is 0:
+            if not accs:
                 raise ValueError('No accounts found')
             return accs[0]
         except Exception as e:
@@ -160,7 +160,7 @@ class Web3Single(metaclass=Singleton):
             ret.append(self.web3.utils.encoding.to_hex(toSolidityBytes32('address', 0)))
         # fill the empty case with zeroes
         for i in range(len(array), length):
-            ret.append(self.web3.utils.encoding.to_hex(toSolidityBytes32'bytes32', 0))
+            ret.append(self.web3.utils.encoding.to_hex(toSolidityBytes32('bytes32', 0)))
         return ret
 
     def isAddressNoChecksum(self, address: str) -> bool:
@@ -168,9 +168,9 @@ class Web3Single(metaclass=Singleton):
         Check if an address is valid (ignoring case)
         :param address: address to check
         '''
-        if not address :
+        if not address:
             return False
-        return address and self.web3.utils.isAddress(address.toLowerCase())
+        return self.web3.utils.isAddress(address.toLowerCase())
 
     def areSameAddressesNoChecksum(self, address1: str, address2: str) -> bool:
         '''
