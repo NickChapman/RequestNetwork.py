@@ -15,14 +15,14 @@ class RequestEthereumService:
         self._requestCoreServices = new RequestCoreService()
         self._abiRequestEthereum = RequestEthereumArtifact.abi
 
-        if not requestEthereumArtifact.networks[self.__web3Single.networkName]:
+        if not requestEthereumArtifact.networks[self._web3Single.networkName]:
             raise ValueError(
                 'RequestEthereum Artifact: no config for network : "' +
                 self._web3Single.networkName + '"')
 
         self._addressRequestEthereum = (
             requestEthereumArtifact.networks
-            [self.__web3Single.networkName].address)
+            [self._web3Single.networkName].address)
 
         self._instanceRequestEthereum = self._web3Single.web3.eth.Contract(
             self._abiRequestEthereum,
